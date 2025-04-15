@@ -7,6 +7,6 @@ Helper routines and definitions for sympy.  In particular, these methods wrap ex
 
 `sympyhelpers` is pip installable.  Just run:
 
-````
+```
 pip install sympyhelpers
 ```
