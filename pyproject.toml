@@ -33,6 +33,7 @@ classifiers = [
 Homepage = "https://github.com/dsavransky/sympyhelpers"
 Repository = "https://github.com/dsavransky/sympyhelpers"
 Issues = "https://github.com/dsavransky/sympyhelpers/issues"
+Documentation = "https://sympyhelpers.readthedocs.io/"
 
 [tool.setuptools.dynamic]
 version = {attr = "sympyhelpers.__version__"}
