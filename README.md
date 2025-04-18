@@ -10,9 +10,3 @@ Helper routines and definitions for sympy.  In particular, these methods wrap ex
 ```
 pip install sympyhelpers
 ```
-
-## Notational Conventions
-
-The code in this repository adopts the following notational conventions:
-* All vectors are represented by lowercase bolded letters ($\mathbf{v}$)
-* Unit vectors are represented by lowercase bolded letters with hats ($\mathbf{\hat{v}}$ is the unit vector of $\mathbf v$)
