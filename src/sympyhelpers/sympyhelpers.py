@@ -70,7 +70,7 @@ def gendiffvars(syms, real=True):
                 Differentiation map
 
     Examples:
-        # create 2nd order derivatives for theta and phi:
+        >>> # create 2nd order derivatives for theta and phi:
         >>> allsyms, diffmap = gendiffvars([('th','theta'), ('ph', 'phi')])
         >>> locals().update(allsyms)
 
@@ -133,9 +133,6 @@ def difftotal(expr, diffby, diffmap):
         >>> theta, t, theta_dot = symbols("theta t theta_dot")
         >>> difftotal(cos(theta), t, {theta: theta_dot})
         -theta_dot*sin(theta)
-
-
-        [0, 1, 2, 3]
 
     .. note::
 
@@ -290,6 +287,10 @@ def calcDCM(n, th):
         th (sympy.core.*):
             Symbol or expression for the angle of rotation
 
+    Returns:
+        sympy.matrices.dense.MutableDenseMatrix:
+            The direction cosine matrix
+
     """
 
     return eye(3) * cos(th) + skew(n) * sin(th) + (1 - cos(th)) * n * n.T
@@ -367,7 +368,7 @@ def fancyMat(prefix, shape):
         Indexing is 1-based.
 
     Examples:
-        >>>fancyMat('{}^\mathcal{B}C^{\mathcal{A}}',(3,3))
+        >>> fancyMat('{}^\mathcal{B}C^{\mathcal{A}}',(3,3))
         Matrix([
         [{}^\mathcal{B}C^{\mathcal{A}}_{11}, {}^\mathcal{B}C^{\mathcal{A}}_{12}, {}^\mathcal{B}C^{\mathcal{A}}_{13}],
         [{}^\mathcal{B}C^{\mathcal{A}}_{21}, {}^\mathcal{B}C^{\mathcal{A}}_{22}, {}^\mathcal{B}C^{\mathcal{A}}_{23}],
@@ -404,7 +405,7 @@ def fancyVec(prefix, n):
         Indexing is 1-based.
 
     Examples:
-        >>>fancyVec('a',3)
+        >>> fancyVec('a',3)
         Matrix([
         [a_{1}],
         [a_{2}],
