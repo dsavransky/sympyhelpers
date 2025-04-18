@@ -26,12 +26,10 @@ from sympy import (  # noqa: F401
     csc,
     tan,
     exp,
+    diag,
 )
 
 # Globally useful definitions
-th, ph, psi, thd, phd, psid, thdd, phdd, psidd = symbols(
-    "theta,phi,psi,thetadot,phidot,psidot,thetaddot,phiddot,psiddot", real=True
-)
 w1, w2, w3 = symbols("omega_1,omega_2,omega_3", real=True)
 t, g, m, h = symbols("t,g,m,h", real=True)
 circmat = Matrix([eye(3)[2 - j, :] for j in range(3)])  # define circulant matrix
@@ -48,6 +46,71 @@ sphericalframe = [
     "\\hat{\\mathbf{e}}_\\rho",
 ]
 sphericalframe_nohat = ["\\mathbf{e}_\\phi", "\\mathbf{e}_\\theta", "\\mathbf{e}_\\rho"]
+
+
+def gendiffvars(syms, real=True):
+    """Generate symbolic variables and their derivatives
+
+    Args:
+        syms (iterable):
+            List (or any iterable) of symbols to create.  Each element is either a
+            string or another iterable, whose contents are:
+            (variable name, [symbol name], [number of derivatives])
+            If number of derivatives is not set, 2 is assumed. If symbol name is not set
+            use the same name for the variable and the symbol.  Thus, an input of 'x' is
+            equivalent to ('x', 'x', 2).
+        real (bool):
+            True for real value.
+
+    Returns:
+        tuple:
+            allsyms (dict):
+                All generated symbols (can be used to populate calling namespace)
+            diffmap (dict):
+                Differentiation map
+
+    Examples:
+        # create 2nd order derivatives for theta and phi:
+        >>> allsyms, diffmap = gendiffvars([('th','theta'), ('ph', 'phi')])
+        >>> locals().update(allsyms)
+
+    """
+
+    diffmap = {}
+    allsyms = {}
+    for s in syms:
+        if isinstance(s, str):
+            varname = s
+            symname = s
+            nderivs = 2
+        else:
+            varname = s[0]
+            if len(s) > 1:
+                symname = s[1]
+            else:
+                symname = varname
+            if len(s) > 2:
+                nderivs = symname[2]
+            else:
+                nderivs = 2
+        # generate new syms locally
+        newsyms = {varname: symbols(symname, real=real)}
+        for j in range(nderivs):
+            newsyms[f'{varname}{"".join(["d"]*(j+1))}'] = symbols(
+                f'{symname}{"".join(["d"]*j)}dot', real=real
+            )
+        locals().update(newsyms)
+
+        # update diffmap
+        for j in range(nderivs):
+            diffmap[locals()[f'{varname}{"".join(["d"]*(j))}']] = locals()[
+                f'{varname}{"".join(["d"]*(j+1))}'
+            ]
+
+        # update output
+        allsyms.update(newsyms)
+
+    return allsyms, diffmap
 
 
 def difftotal(expr, diffby, diffmap):
