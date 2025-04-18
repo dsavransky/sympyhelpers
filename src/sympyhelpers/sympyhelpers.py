@@ -90,7 +90,7 @@ def gendiffvars(syms, real=True):
             else:
                 symname = varname
             if len(s) > 2:
-                nderivs = symname[2]
+                nderivs = s[2]
             else:
                 nderivs = 2
         # generate new syms locally
