@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
+    "nbsphinx",
 ]
 
 templates_path = ["_templates"]

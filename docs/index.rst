@@ -25,6 +25,7 @@ To install from source, clone or download the code repository, and, in the top l
 
    conventions
    usage
+   Notebooks/spherical_pendulum
    modules
 
 Indices and tables
