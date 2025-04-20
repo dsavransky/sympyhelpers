@@ -14,3 +14,6 @@ Helper routines and definitions for sympy.  In particular, these methods wrap ex
 ```
 pip install sympyhelpers
 ```
+
+## Documentation
+Click on the 'docs' badge, above, or navigate to: https://sympyhelpers.readthedocs.io/
