@@ -54,3 +54,32 @@ For each provided coordinate definition, :py:meth:`~sympyhelpers.sympyhelpers.ge
 The update of the `locals` dictionary is optional, but is very convenient, as it allows for direct use of the produced variables in the local namespace. After running this code, the variables ``th, thd, ph, phd, phdd`` will be available for use in the local scope from which it was called, and the ``diffmap`` dictionary will be: ``{theta: thetadot, phi: phidot, phidot: phiddot}``.
 
  
+Vector Representation
+--------------------------------
+
+All (Euclidean) vectors are encoded as 3x1 column matrices, which carry along an implicit frame definition.  Given a reference frame :math:`\mathcal I = ({\hat{\mathbf{e}}}_1, {\hat{\mathbf{e}}}_2, {\hat{\mathbf{e}}}_3)` and a vector :math:`\mathbf{r}_{P/O} = x{\hat{\mathbf{e}}}_1 + y{\hat{\mathbf{e}}}_2 + z{\hat{\mathbf{e}}}_3`, we have the equivalency:
+
+  .. math::
+    \left[\mathbf{r}_{P/O} \right]_\mathcal{I} = \begin{bmatrix} x \\y\\z\end{bmatrix}_\mathcal{I} \equiv  x{\hat{\mathbf{e}}}_1 + y{\hat{\mathbf{e}}}_2 + z{\hat{\mathbf{e}}}_3
+
+We would define the equivalent ``sympy`` matrix as:
+
+.. code-block:: python
+
+    x, y, z = symbols("x, y, z")
+    r_PO_S = Matrix([x, y, z])
+
+In order to convert back from the matrix form to the usual vector component form, ``sympyhelpers`` provides a method :py:meth:`~sympyhelpers.sympyhelpers.mat2vec`.  For the example above, we could run:
+
+.. code-block:: python
+
+    mat2vec(r_PO_S)
+
+To generate :math:`x{\hat{\mathbf{e}}}_1 + y{\hat{\mathbf{e}}}_2 + z{\hat{\mathbf{e}}}_3`.  By default :py:meth:`~sympyhelpers.sympyhelpers.mat2vec` assumes the standard basis :math:`({\hat{\mathbf{e}}}_1, {\hat{\mathbf{e}}}_2, {\hat{\mathbf{e}}}_3)`, but this can be changed via the ``basis`` keyword.  If ``basis`` is set to a string (e.g., ``basis='b'``), then it the method will automatically geenrate an indexed basis set - that is, for ``basis='b'``, the basis will be :math:`({\hat{\mathbf{b}}}_1, {\hat{\mathbf{b}}}_2, {\hat{\mathbf{b}}}_3)`. If you prefer not to put hats on your basis vectors, you can set keyword input ``hat = False``. Alternatively, you can provide a 3-element iterable to the ``basis`` keyword to define your own custom basis vector set. 
+
+``sympyhelpers`` provides two pre-defined basis vector sets:
+
+* ``polarframe``: :math:`\displaystyle  \hat{\mathbf{e}}_r , \hat{\mathbf{e}}_\theta , \hat{\mathbf{e}}_3`
+* ``sphericalframe``: :math:`\displaystyle  \hat{\mathbf{e}}_\phi,  \hat{\mathbf{e}}_\theta, \hat{\mathbf{e}}_\rho`
+
+Two additional sets (``polarframe_nohat`` and ``sphericalframe_nohat``) provide the same definitions, without the hats. 
