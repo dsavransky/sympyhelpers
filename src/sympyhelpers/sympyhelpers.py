@@ -74,6 +74,16 @@ def gendiffvars(syms, real=True):
         >>> allsyms, diffmap = gendiffvars([('th','theta'), ('ph', 'phi')])
         >>> locals().update(allsyms)
 
+    .. note::
+        When the name of a symbol includes an underscore, the 'dot' will be placed
+        preceeding the underscore such that the leading term is dotted. However, the
+        corresponding variable name will always have the 'd' placed at the end,
+        regardless of whether the variable name includes and underscore.  Thus, a
+        variable definition like ('th_1', 'theta_1') will result in the first derivative
+        being named thetadot_1 and assigned to varaible th_1d. To avoid confusion, it is
+        recommended to avoid underscores in variable names - e.g., for this example to
+        define the variable as ('th1', 'theta_1'), which would result in a variable th1d
+        mapping to a symbol with name 'thetadot_1'.
     """
 
     diffmap = {}
@@ -96,15 +106,22 @@ def gendiffvars(syms, real=True):
         # generate new syms locally
         newsyms = {varname: symbols(symname, real=real)}
         for j in range(nderivs):
-            newsyms[f'{varname}{"".join(["d"]*(j+1))}'] = symbols(
-                f'{symname}{"".join(["d"]*j)}dot', real=real
+            # if symname includes underscore, nead to treat it differently
+            if "_" in symname:
+                p1, p2 = symname.split("_")
+                derivname = f'{p1}{"".join(["d"] * j)}dot_{p2}'
+            else:
+                derivname = f'{symname}{"".join(["d"] * j)}dot'
+
+            newsyms[f'{varname}{"".join(["d"] * (j + 1))}'] = symbols(
+                derivname, real=real
             )
         locals().update(newsyms)
 
         # update diffmap
         for j in range(nderivs):
-            diffmap[locals()[f'{varname}{"".join(["d"]*(j))}']] = locals()[
-                f'{varname}{"".join(["d"]*(j+1))}'
+            diffmap[locals()[f'{varname}{"".join(["d"] * (j))}']] = locals()[
+                f'{varname}{"".join(["d"] * (j + 1))}'
             ]
 
         # update output
