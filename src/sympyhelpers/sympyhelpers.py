@@ -363,7 +363,7 @@ def DCM2axang(DCM):
     sinth = sqrt(1 - costh**2)
     tmp = Matrix([DCM[2, 1] - DCM[1, 2], DCM[0, 2] - DCM[2, 0], DCM[1, 0] - DCM[0, 1]])
     n = tmp / 2 / sinth
-    th = atan2(sinth, costh)
+    th = acos(costh)
 
     return n, th
 
