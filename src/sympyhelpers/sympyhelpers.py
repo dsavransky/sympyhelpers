@@ -18,6 +18,8 @@ from sympy import (  # noqa: F401
     pi,
     sqrt,
     atan,
+    atan2,
+    acos,
     sign,
     series,
     expand,
@@ -88,19 +90,19 @@ def gendiffvars(syms, real=True):
 
     diffmap = {}
     allsyms = {}
-    for s in syms:
-        if isinstance(s, str):
-            varname = s
-            symname = s
+    for symboldef in syms:
+        if isinstance(symboldef, str):
+            varname = symboldef
+            symname = symboldef
             nderivs = 2
         else:
-            varname = s[0]
-            if len(s) > 1:
-                symname = s[1]
+            varname = symboldef[0]
+            if len(symboldef) > 1:
+                symname = symboldef[1]
             else:
                 symname = varname
-            if len(s) > 2:
-                nderivs = s[2]
+            if len(symboldef) > 2:
+                nderivs = symboldef[2]
             else:
                 nderivs = 2
         # generate new syms locally
@@ -326,6 +328,10 @@ def DCM2angVel(dcm, diffmap, diffby=t):
         diffby (sympy.core.symbol.Symbol):
             Inependent variable to differentiate with respect to. Defaults to t
 
+    Returns:
+        sympy.matrices.dense.MutableDenseMatrix:
+            Angular velocity in components of frame B
+
     """
 
     # s = solve(dcm*difftotalmat(dcm,t,diffmap).T-skew([w1,w2,w3]),(w1,w2,w3))
@@ -333,6 +339,33 @@ def DCM2angVel(dcm, diffmap, diffby=t):
 
     tmp = dcm * difftotalmat(dcm, t, diffmap).T
     return simplify(Matrix([tmp[2, 1], tmp[0, 2], tmp[1, 0]]))
+
+
+def DCM2axang(DCM):
+    r"""Given a direction cosine matrix :math:`{}^\mathcal{B}C^\mathcal{A}` compute
+    the axis and angle of the rotation.  Inverse of `calcDCM`.
+
+    Args:
+        DCM (sympy.matrices.dense.MutableDenseMatrix):
+            Direction cosine matrix transforming vector components from frame A to
+            frame B
+
+    Returns:
+        tuple:
+            n (sympy.matrices.dense.MutableDenseMatrix):
+                3x1 matrix representation of the unit vector of the axis of rotation
+            th (sympy.core.*):
+                Expression for the angle of rotation
+
+    """
+
+    costh = (DCM.trace() - 1) / 2
+    sinth = sqrt(1 - costh**2)
+    tmp = Matrix([DCM[2, 1] - DCM[1, 2], DCM[0, 2] - DCM[2, 0], DCM[1, 0] - DCM[0, 1]])
+    n = tmp / 2 / sinth
+    th = atan2(sinth, costh)
+
+    return n, th
 
 
 def mat2vec(mat, basis="e", hat=True):
