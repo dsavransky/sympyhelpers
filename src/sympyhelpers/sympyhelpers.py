@@ -297,7 +297,7 @@ def skew(v):
 def calcDCM(n, th):
     r"""Compute a direction cosine matrix via the Euler-Rodrigues equation.
     Evaluates the DCM :math:`{}^\mathcal{A}C^\mathcal{B}` for frames
-    :math:`\mathcal{I}` and :math:`\mathcal{B}` for axis of rotation :math:`\mathbf{n}`
+    :math:`\mathcal{A}` and :math:`\mathcal{B}` for axis of rotation :math:`\mathbf{n}`
     and angle :math:`\theta`
 
     Args:
@@ -313,6 +313,24 @@ def calcDCM(n, th):
     """
 
     return eye(3) * cos(th) + skew(n) * sin(th) + (1 - cos(th)) * n * n.T
+
+
+def rodriguesEq(nhat, th):
+    r"""This is a wrapper for `calcDCM`, but computes the
+    :math:`{}^\mathcal{B}C^\mathcal{A}` matrix (the inverse/trasnpose of `calcDCM`).
+
+    Args:
+        nhat (sympy.matrices.dense.MutableDenseMatrix):
+            3x1 matrix representation of the unit vector of the axis of rotation
+        th (sympy.core.*):
+            Symbol or expression for the angle of rotation
+
+    Returns:
+        sympy.matrices.dense.MutableDenseMatrix:
+            The direction cosine matrix
+    """
+
+    return calcDCM(nhat, -th)
 
 
 def DCM2angVel(dcm, diffmap, diffby=t):
@@ -368,6 +386,32 @@ def DCM2axang(DCM):
     return n, th
 
 
+def genRefFrame(basis, hat=True):
+    r"""Generate symbols corresponding to unit vectors of a reference frame
+
+    Args:
+        basis (str)
+            Common character of unit vectors.
+            For example, basis = 'e' results in a basis set of:
+            '\mathbf{\hat{e}}_1, \mathbf{\hat{e}}_2, \mathbf{\hat{e}}_3'
+        hat (bool):
+            If true, basis vectors are typeset as bold and hatted (e.g.
+            :math:`\mathbf{\hat{e}}_1`.  If false, vectors are only bolded.
+            Defaults True.
+
+    Returns:
+        sympy.Symbol
+
+    """
+
+    if hat:
+        basis = [r"\mathbf{\hat{" + basis + "}}_" + str(j) for j in range(1, 4)]
+    else:
+        basis = [r"\mathbf{" + basis + "}_" + str(j) for j in range(1, 4)]
+
+    return symbols(basis, commutative=False)
+
+
 def mat2vec(mat, basis="e", hat=True):
     r"""Transform matrix representation of a vector to the vector equation
     for a given basis
@@ -378,11 +422,19 @@ def mat2vec(mat, basis="e", hat=True):
         basis (str or iterable):
             If a string, generate unit vector basis for the frame as basis_i (e.g. 'e'
             becomes basis e_1,e_2,e_3). If an iterable of strings (must be of length 3)
-            use directly as the basis representation.
+            use directly as the basis representation. For example, the default
+            (basis = 'e') results in a basis set of:
+            '\mathbf{\hat{e}}_1, \mathbf{\hat{e}}_2, \mathbf{\hat{e}}_3'
+            If basis is an iterable, then the contents are used exactly to represent the
+            basis vectors.
         hat (bool):
             Only applies if `basis` input is a string.  If set, basis vectors are
             typeset as bold and hatted (e.g. :math:`\mathbf{\hat{e}}_1`.  If false,
             vectors are only bolded.  Defaults True.
+
+    Returns:
+        sympy.Add:
+            The full vector in the specified basis (reference frame).
     """
 
     assert isinstance(basis, str) or (
@@ -390,15 +442,14 @@ def mat2vec(mat, basis="e", hat=True):
     ), "basis input must be a string or iterable of length 3."
 
     if isinstance(basis, str):
-        if hat:
-            basis = [r"\hat{\mathbf{" + basis + "}}_" + str(j) for j in range(1, 4)]
-        else:
-            basis = [r"\mathbf{" + basis + "}_" + str(j) for j in range(1, 4)]
+        basissyms = genRefFrame(basis, hat=hat)
+    else:
+        basissyms = symbols(basis, commutative=False)
 
-    basissyms = symbols(basis, commutative=False)
     basisvec = Matrix(basissyms)
+    vec = (mat.T * basisvec)[0]
 
-    return (mat.T * basisvec)[0]
+    return vec
 
 
 def fancyMat(prefix, shape):
