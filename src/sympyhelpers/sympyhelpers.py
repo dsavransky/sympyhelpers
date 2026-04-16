@@ -50,6 +50,13 @@ sphericalframe = [
 ]
 sphericalframe_nohat = ["\\mathbf{e}_\\phi", "\\mathbf{e}_\\theta", "\\mathbf{e}_\\rho"]
 
+collisionframe = [
+    "\\hat{\\mathbf{e}}_n",
+    "\\hat{\\mathbf{e}}_t",
+    "\\hat{\\mathbf{e}}_3",
+]
+collisionframe_nohat = ["\\mathbf{e}_n", "\\mathbf{e}_t", "\\mathbf{e}_3"]
+
 
 def gendiffvars(syms, real=True):
     """Generate symbolic variables and their derivatives
@@ -387,7 +394,7 @@ def DCM2axang(DCM):
     return n, th
 
 
-def genRefFrame(basis, hat=True):
+def genRefFrame(basis, hat=True, commutative=False):
     r"""Generate symbols corresponding to unit vectors of a reference frame
 
     Args:
@@ -399,6 +406,10 @@ def genRefFrame(basis, hat=True):
             If true, basis vectors are typeset as bold and hatted (e.g.
             :math:`\mathbf{\hat{e}}_1`.  If false, vectors are only bolded.
             Defaults True.
+        commutative (bool):
+            Sets commutativity of unit vectors. Defaults to False.  This is useful for
+            display purposes, but will prevent these from being used in solving vector
+            expressions.
 
     Returns:
         sympy.Symbol
@@ -410,7 +421,7 @@ def genRefFrame(basis, hat=True):
     else:
         basis = [r"\mathbf{" + basis + "}_" + str(j) for j in range(1, 4)]
 
-    return symbols(basis, commutative=False)
+    return symbols(basis, commutative=commutative)
 
 
 def mat2vec(mat, basis="e", hat=True):
